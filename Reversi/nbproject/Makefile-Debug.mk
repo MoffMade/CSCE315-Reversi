@@ -35,7 +35,11 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/main.o
+	${OBJECTDIR}/gameAI.o \
+	${OBJECTDIR}/main.o \
+	${OBJECTDIR}/gameMechanics.o \
+	${OBJECTDIR}/gameServer.o \
+	${OBJECTDIR}/gameClient.o
 
 
 # C Compiler Flags
@@ -62,10 +66,30 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/reversi.exe: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/reversi ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
+${OBJECTDIR}/gameAI.o: gameAI.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/gameAI.o gameAI.cpp
+
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.cpp
+
+${OBJECTDIR}/gameMechanics.o: gameMechanics.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/gameMechanics.o gameMechanics.cpp
+
+${OBJECTDIR}/gameServer.o: gameServer.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/gameServer.o gameServer.cpp
+
+${OBJECTDIR}/gameClient.o: gameClient.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/gameClient.o gameClient.cpp
 
 # Subprojects
 .build-subprojects:

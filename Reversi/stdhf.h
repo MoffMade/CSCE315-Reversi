@@ -7,12 +7,15 @@
 
 #ifndef STDHF_H
 #define	STDHF_H
+
+#define WHITE 'O'
+#define BLACK '@'
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <stdlib.h>
 #include <stdio.h>
-
 
 #endif	/* STDHF_H */
 
