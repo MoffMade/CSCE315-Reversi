@@ -22,12 +22,17 @@
 using namespace std;
 #ifndef GAMEMECHANICS_H
 #define	GAMEMECHANICS_H
-class Board {
+
+class Engine {
     char boardState[8][8];
+    void flipTiles(char p, coordPair loc);
 public:
-    Board();
+    Engine();
     char** getBoardState();
-    int makeMove();
+    int makeMove(char p, coordPair loc);
+    bool isValidMove(char p, coordPair loc);
+    vector<string> getValidMoves(char p);
+    int getScore(char p);
 };
 
 #endif	/* GAMEMECHANICS_H */

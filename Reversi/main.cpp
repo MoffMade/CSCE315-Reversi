@@ -6,13 +6,15 @@
  */
 
 #include "stdhf.h"
-
-using namespace std;
-
+#include "gameServer.h"
+#include "gameClient.h"
+using namespace std; 
 /*
  * 
  */
 int main(int argc, char** argv) {
+    serverEngine e;
+    e.runGame();
     return 0;
 }
 
