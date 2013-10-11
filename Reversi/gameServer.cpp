@@ -57,30 +57,43 @@ void serverEngine::runGame(){
 	int turnCount=0;
     while(!isTerminalState()){
         if(whiteTurn){
-            cout<<"Turn "<<turnCount<<"- Please enter move for WHITE player:: ";
-            cin>>move;
-			if(move=="help"){
-				cout<<"You can place a tile in spaces ";
-				printValidMoves(WHITE);
+			if(!((gameBoard.getValidMoves(WHITE)).empty())){
+				cout<<"Turn "<<turnCount<<"- Please enter move for WHITE player:: ";
+				cin>>move;
+				if(move=="help"){
+					cout<<"You can place a tile in spaces ";
+					printValidMoves(WHITE);
+					}
+				else if(move=="exit")
+					break;
+				else if(move=="undo"){
+					--turnCount;
+					gameBoard.setBoardState(boardHistory[turnCount%10]);
+					cout<<"Reset to turn "<<turnCount<<endl;
+					}
+				else if(makeMove(WHITE, move)){
+					whiteTurn=false;
+					turnCount++;
+					}
 				}
-			else if(move=="exit")
-				break;
-			else if(move=="undo"){
-				--turnCount;
-				gameBoard.setBoardState(boardHistory[turnCount%10]);
-				cout<<"Reset to turn "<<turnCount<<endl;
-				}
-            else if(makeMove(WHITE, move)){
-                whiteTurn=false;
-				turnCount++;
-				}
-            }
+			
+			else{
+				cout<<"WHITE has no valid moves."<<endl;
+				whiteTurn=false;
+			}
+		}
         else{
-			move=AI_Player.getAIMove(&gameBoard);
-            cout<<"BLACK plays at "<<move<<endl;
-			if(makeMove(BLACK, move))
-                whiteTurn=true;
-            }
+			if(!((gameBoard.getValidMoves(BLACK)).empty())){
+				move=AI_Player.getAIMove(&gameBoard);
+				cout<<"BLACK plays at "<<move<<endl;
+				if(makeMove(BLACK, move))
+					whiteTurn=true;
+			}
+			else{
+				cout<<"BLACK has no valid moves."<<endl;
+				whiteTurn=true;
+			}
+			}
 		boardHistory[turnCount%10]=gameBoard.getBoardState();
         showBoard();
     }
