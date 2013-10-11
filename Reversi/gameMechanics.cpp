@@ -21,35 +21,29 @@ char** Engine::getBoardState(){
     return state;
 }
 int Engine::makeMove(char p, coordPair loc){
-    if(!isValidMove(p, loc))
+    if(!isValidMove(p, loc)){
         cout<<"INVALID MOVE"<<endl;
-        return -1;
-    if(p==WHITE){
-        if(boardState[loc.row][loc.col]!=WHITE){
-            boardState[loc.row][loc.col]=WHITE;
-            flipTiles(WHITE, loc);
+        return 0;
         }
-        else
-            return 0;
+    if(p==WHITE){
+        boardState[loc.row][loc.col]=WHITE;
+        flipTiles(WHITE, loc);
         return 1;
     }
     else if(p==BLACK){
-        if(boardState[loc.row][loc.col]!=BLACK){
-            boardState[loc.row][loc.col]=BLACK;
-            flipTiles(BLACK, loc);
-        }
-        else
-            return 0;
+        boardState[loc.row][loc.col]=BLACK;
+        flipTiles(BLACK, loc);
         return 1;
     }
     else
-        return -1;
-    }
+        return 0;
+}
 const coordPair directions[8]={coordPair {0,-1}, coordPair {0,1}, coordPair {-1, 0}, coordPair {1,0}, coordPair {-1,-1}, coordPair {1,-1}, coordPair {-1,1}, coordPair {1,1}};
 bool Engine::isValidMove(char p, coordPair loc){
     //return false if loc is non-empty
-    if(boardState[loc.row][loc.col]!=EMPTY)
+    if(boardState[loc.row][loc.col]!=EMPTY){
         return false;
+    }
     char player=p;
     char opp;
     if(player==WHITE)
@@ -63,12 +57,13 @@ bool Engine::isValidMove(char p, coordPair loc){
         //move one space in direction[i] and check for opponent piece
         end_loc+=directions[i];
         if(boardState[end_loc.row][end_loc.col]==opp)
-            while(end_loc.row<8&&end_loc.col<8){
+            while(end_loc.row>=0&&end_loc.col>=0&&end_loc.row<8&&end_loc.col<8){
                 //check next space, if player piece return true, if empty space found break to next direction
                 //continue to next space if opponent piece
                 end_loc+=directions[i];
-                if(boardState[end_loc.row][end_loc.col]==player)
+                if(boardState[end_loc.row][end_loc.col]==player){
                     return true;
+                }
                 else if(boardState[end_loc.row][end_loc.col]==EMPTY)
                     break;
             }

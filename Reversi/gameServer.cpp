@@ -17,46 +17,13 @@ void serverEngine::showBoard(){
     }
     cout<<"  a b c d e f g h "<<endl;
 }
-void serverEngine::makeMove(char p, string m){
-    if(m.length()==2){
-        cout<<m[0]<<" "<<m[1]<<endl;
-        char col=m[0];
-        int c=-1;
-        int r=atoi((m.substr(1,1)).c_str())-1;
-        switch(col){
-            case 'a':
-                c=0;
-                break;
-            case 'b':
-                c=1;
-                break;
-            case 'c':
-                c=2;
-                break;
-            case 'd':
-                c=3;
-                break;
-            case 'e':
-                c=4;
-                break;
-            case 'f':
-                c=5;
-                break;
-            case 'g':
-                c=6;
-                break;
-            case 'h':
-                c=7;
-                break;
-            default:
-                c=-1;
-                break;
-        }
-        cout<<r<<" "<<c<<endl;
-        gameBoard.makeMove(p,coordPair {r,c});
-    }
-    else
-        cout<<"INVALID MOVE"<<endl;
+int serverEngine::makeMove(char p, string m){
+    char c=tolower(m[0]);
+    char r=tolower(m[1]);
+    int col_choice=c-97;
+    int row_choice=r-49;
+    cout<<row_choice<<" "<<col_choice<<endl;
+    return gameBoard.makeMove(p,coordPair {row_choice,col_choice});
 }
 void serverEngine::printValidMoves(char p){
     vector<string> moves=gameBoard.getValidMoves(p);
@@ -84,24 +51,23 @@ void serverEngine::outputScores(){
         cout<<"It is a tie!"<<endl;
 }
 void serverEngine::runGame(){
-    string move=" ";
+    string move;
     bool whiteTurn=true;
     showBoard();
     while(move!="exit"){
-        move=" ";
         if(whiteTurn){
-            printValidMoves(WHITE);
+            //printValidMoves(WHITE);
             cout<<"Please enter move for WHITE player:: ";
             cin>>move;
-            makeMove(WHITE, move);
-            whiteTurn=false;
+            if(makeMove(WHITE, move))
+                whiteTurn=false;
             }
         else{
-            printValidMoves(BLACK);
+            //printValidMoves(BLACK);
             cout<<"Please enter move for BLACK player:: ";
             cin>>move;
-            makeMove(BLACK, move);
-            whiteTurn=true;
+            if(makeMove(BLACK, move))
+                whiteTurn=true;
             }
         showBoard();
         
