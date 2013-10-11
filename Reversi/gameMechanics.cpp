@@ -20,6 +20,12 @@ char** Engine::getBoardState(){
     }
     return state;
 }
+void Engine::setBoardState(char** newState){
+	for(int r=0; r<8; r++){
+        for(int c=0; c<8; c++)
+            boardState[r][c]=newState[r][c];
+    }
+};
 int Engine::makeMove(char p, coordPair loc){
     if(!isValidMove(p, loc)){
         cout<<"INVALID MOVE"<<endl;
@@ -38,7 +44,7 @@ int Engine::makeMove(char p, coordPair loc){
     else
         return 0;
 }
-const coordPair directions[8]={coordPair {0,-1}, coordPair {0,1}, coordPair {-1, 0}, coordPair {1,0}, coordPair {-1,-1}, coordPair {1,-1}, coordPair {-1,1}, coordPair {1,1}};
+
 bool Engine::isValidMove(char p, coordPair loc){
     //return false if loc is non-empty
     if(boardState[loc.row][loc.col]!=EMPTY){
@@ -56,17 +62,22 @@ bool Engine::isValidMove(char p, coordPair loc){
     for(int i=0; i<8; i++){
         //move one space in direction[i] and check for opponent piece
         end_loc+=directions[i];
-        if(boardState[end_loc.row][end_loc.col]==opp)
-            while(end_loc.row>=0&&end_loc.col>=0&&end_loc.row<8&&end_loc.col<8){
-                //check next space, if player piece return true, if empty space found break to next direction
-                //continue to next space if opponent piece
-                end_loc+=directions[i];
-                if(boardState[end_loc.row][end_loc.col]==player){
-                    return true;
+        if(end_loc.row>=0&&end_loc.col>=0&&end_loc.row<8&&end_loc.col<8)
+            if(boardState[end_loc.row][end_loc.col]==opp)
+                while(end_loc.row>=0&&end_loc.col>=0&&end_loc.row<8&&end_loc.col<8){
+                    //check next space, if player piece return true, if empty space found break to next direction
+                    //continue to next space if opponent piece
+                    end_loc+=directions[i];
+					if(end_loc.row>=0&&end_loc.col>=0&&end_loc.row<8&&end_loc.col<8){
+						if(boardState[end_loc.row][end_loc.col]==player){
+							return true;
+						}
+						else if(boardState[end_loc.row][end_loc.col]==EMPTY)
+							break;
+					}
+					else 
+						break;
                 }
-                else if(boardState[end_loc.row][end_loc.col]==EMPTY)
-                    break;
-            }
          //reset end_loc for next direction search
          end_loc=loc;
       }
@@ -90,22 +101,27 @@ void Engine::flipTiles(char p, coordPair loc){
         end_loc+=directions[i];
         //spacesChecked is a counter for how many tiles will be flipped in directions[i]
         int spacesChecked=1;
-        if(boardState[end_loc.row][end_loc.col]==opp)
-            while(end_loc.row<8&&end_loc.col<8){
-                //check next space, 
-                end_loc+=directions[i];
-                ++spacesChecked;
-                //if space is player, then in p|opp|...|p state
-                if(boardState[end_loc.row][end_loc.col]==player){
-                    for(int k=0; k<spacesChecked; k++){
-                        end_loc-=directions[i];
-                        boardState[end_loc.row][end_loc.col]=player;
-                    }
-                    break;
+        if(end_loc.row>=0&&end_loc.col>=0&&end_loc.row<8&&end_loc.col<8)
+            if(boardState[end_loc.row][end_loc.col]==opp)
+                while(end_loc.row<8&&end_loc.col<8){
+                    //check next space, 
+                    end_loc+=directions[i];
+                    ++spacesChecked;
+                    //if space is player, then in p|opp|...|p state
+					if(end_loc.row>=0&&end_loc.col>=0&&end_loc.row<8&&end_loc.col<8){
+						if(boardState[end_loc.row][end_loc.col]==player){
+							for(int k=0; k<spacesChecked; k++){
+								end_loc-=directions[i];
+								boardState[end_loc.row][end_loc.col]=player;
+							}
+							break;
+						}
+						else if(boardState[end_loc.row][end_loc.col]==EMPTY)
+							break;
+					}
+					else
+						break;
                 }
-                else if(boardState[end_loc.row][end_loc.col]==EMPTY)
-                    break;
-            }
          //reset end_loc for next direction search
          end_loc=loc;
       }  
@@ -114,12 +130,14 @@ vector<string> Engine::getValidMoves(char p){
     vector<string> validMoves;
     string move=" ";
     for(int r=0; r<8; r++)
-        for(int c=0; c<8; c++)
-            if(isValidMove(p,coordPair {r,c})){
+        for(int c=0; c<8; c++){
+            coordPair testLocation = {r,c};
+            if(isValidMove(p,testLocation)){
                 move=(char)(c+97);
                 move+=(char)(r+49);
                 validMoves.push_back(move);
             }
+        }
     return validMoves;
 };
 int Engine::getScore(char p){

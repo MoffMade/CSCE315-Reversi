@@ -6,6 +6,7 @@
  * 
  * WHITE: O
  * BLACK: @
+ * EMPTY: _
  * 
  * Board initial setup:
  * 0|_|_|_|_|_|_|_|_|
@@ -29,6 +30,7 @@ class Engine {
 public:
     Engine();
     char** getBoardState();
+	void setBoardState(char** newState);
     int makeMove(char p, coordPair loc);
     bool isValidMove(char p, coordPair loc);
     vector<string> getValidMoves(char p);

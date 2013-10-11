@@ -2,11 +2,11 @@
 using namespace std;
 
 serverEngine::serverEngine(){
-    initBoard();
-    //will have other initialization
-}
-void serverEngine::initBoard(){
     gameBoard;
+    AI_Player;
+	for(int i=0; i<10; i++)
+		boardHistory[i];
+    //will have other initialization
 }
 void serverEngine::showBoard(){
     char** currBoard=gameBoard.getBoardState();
@@ -22,8 +22,8 @@ int serverEngine::makeMove(char p, string m){
     char r=tolower(m[1]);
     int col_choice=c-97;
     int row_choice=r-49;
-    cout<<row_choice<<" "<<col_choice<<endl;
-    return gameBoard.makeMove(p,coordPair {row_choice,col_choice});
+    coordPair loc = {row_choice,col_choice};
+    return gameBoard.makeMove(p,loc);
 }
 void serverEngine::printValidMoves(char p){
     vector<string> moves=gameBoard.getValidMoves(p);
@@ -54,25 +54,35 @@ void serverEngine::runGame(){
     string move;
     bool whiteTurn=true;
     showBoard();
-    while(move!="exit"){
+	int turnCount=0;
+    while(!isTerminalState()){
         if(whiteTurn){
-            //printValidMoves(WHITE);
-            cout<<"Please enter move for WHITE player:: ";
+            cout<<"Turn "<<turnCount<<"- Please enter move for WHITE player:: ";
             cin>>move;
-            if(makeMove(WHITE, move))
+			if(move=="help"){
+				cout<<"You can place a tile in spaces ";
+				printValidMoves(WHITE);
+				}
+			else if(move=="exit")
+				break;
+			else if(move=="undo"){
+				--turnCount;
+				gameBoard.setBoardState(boardHistory[turnCount%10]);
+				cout<<"Reset to turn "<<turnCount<<endl;
+				}
+            else if(makeMove(WHITE, move)){
                 whiteTurn=false;
+				turnCount++;
+				}
             }
         else{
-            //printValidMoves(BLACK);
-            cout<<"Please enter move for BLACK player:: ";
-            cin>>move;
-            if(makeMove(BLACK, move))
+			move=AI_Player.getAIMove(&gameBoard);
+            cout<<"BLACK plays at "<<move<<endl;
+			if(makeMove(BLACK, move))
                 whiteTurn=true;
             }
+		boardHistory[turnCount%10]=gameBoard.getBoardState();
         showBoard();
-        
-        if(isTerminalState())
-            break;
     }
     outputScores();
 }

@@ -6,6 +6,7 @@
  */
 #include "stdhf.h"
 #include "gameMechanics.h"
+#include "gameAI.h"
 using namespace std;
 
 #ifndef GAMESERVER_H
@@ -13,9 +14,10 @@ using namespace std;
 
 class serverEngine{
     Engine gameBoard;
+    reversiAI AI_Player;
+	char** boardHistory[10];
 public:
     serverEngine();
-    void initBoard();
     void showBoard();
     int makeMove(char p, string m);
     void printValidMoves(char p);
