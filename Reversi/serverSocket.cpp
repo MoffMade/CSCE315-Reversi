@@ -96,21 +96,45 @@ int main(int argc, char *argv[]) {
 
 	 //testing sending mess
 	 //this will send to the client
-	 send(newsock, "Hello ,world\n", 15,0);
+	while (1) {
+	
+	 printf("\n Enter 'quit' to terminate the connection with this client: \n");
+	 
+	 bzero(send_message,1024); 
+	 fgets(send_message,1023,stdin);
+	 
+	 //if the server sending quit message -> closing connection
 
-	 bzero(receive_message,1024);
+	 if (strcmp(send_message,"quit") == 0) {
+		send(newsock,"Server will close connection",26,0);
+		close(newsock);
+		break;
+	 } else {
+	 
+		send(newsock, "Showboard will be shown here", 25,0); //the sending message will be the return value from showBoard in gameengine
 
-	 int n;
-	 n = read(newsock,receive_message,1024);
-	 if (n <0) {
+		//getting the message from client
+	 	bzero(receive_message,1024);
+
+	 	int n;
+	 	n = read(newsock,receive_message,1024);
+	 	if (n <0) {
 		fprintf(stderr,"Error while reading from socket");
+		
+		//check if the user want to quit
+		if (strcmp(receive_message,"quit") ==0 ) {
+			
+		  send(newsock, "thank you for playing", 22,0);
+		  close(newsock);
+		  break;
+		} else {
+			//the receive_message will contain 2 chars for the coordinator llike c3 d5
+			//calling the function to gameEngine right here
+		}
+		
 	 }
-
-	 //the message sent by client
-	 printf("Here is the message: %s\n",receive_message);
-
-
-	 close(newsock);
+	}	
+	}
 	 close(sock);
 	 return 0;
 	 
