@@ -28,6 +28,9 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
+using namespace std;
+
+
 
 int main(int argc, char *argv[]) {
 
@@ -83,26 +86,48 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr,"Errow while writing to socket");
 		exit(1);
 	 }
-	
-	printf("Enter message: ");
-	bzero(receive_message,1024); 
-	fgets(receive_message,1023,stdin);
-
 	int n;
-	n = write(sock, receive_message, strlen(receive_message));
-    
-	if (n < 0) 
-         fprintf(stderr,"ERROR writing to socket");
-    
+	while (1) {
+	
+	//reading message from server
+
 	bzero(receive_message,1024);
-    
 	n = read(sock, receive_message, 1023);
-    
 	if (n < 0) 
          fprintf(stderr,"ERROR reading from socket");
 
-    	printf("%s\n", receive_message );
-   	close(sock);
+	//When server game send quit message -> terminate by closing connection
+
+	if (strcmp(receive_message, "quit") == 0) {
+	close(sock);
+	break;
+	} else {
+
+		//start sending message to server
+		//if user choose to quit 
+		//send the message to let server know the user quit the game
+		//and close
+		//otherwise sending message like normal
+
+    		printf("%s\n", receive_message ); //this printf will call function showBoard in gameEngine
+
+		printf("Enter move or 'quit' to stop connection: ");
+		bzero(send_message,1024); 
+		fgets(send_message,1023,stdin);
+		
+		if (strcmp(send_message,"quit") == 0) {
+		
+			n = write(sock, send_message, strlen(send_message));
+			if (n < 0) 
+        		 fprintf(stderr,"ERROR writing to socket");
+    			close(sock);
+			break;
+		} else {
+			n = write(sock, send_message, strlen(send_message));				
+		}
+ 
+	}
+	}
     	return 0;
 
 
