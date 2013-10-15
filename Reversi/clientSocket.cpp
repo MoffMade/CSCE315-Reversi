@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
 
 	//When server game send quit message -> terminate by closing connection
 
-	if (strcmp(receive_message, "quit") == 0) {
+	if (receive_message[0] == 'q') {
 	close(sock);
 	break;
 	} else {
@@ -108,14 +108,14 @@ int main(int argc, char *argv[]) {
 		//send the message to let server know the user quit the game
 		//and close
 		//otherwise sending message like normal
+		
+    		printf("This is a response from server: %s\n", receive_message ); 
 
-    		printf("%s\n", receive_message ); //this printf will call function showBoard in gameEngine
-
-		printf("Enter move or 'quit' to stop connection: ");
+		printf("Enter move or 'q' to stop connection: \n");
 		bzero(send_message,1024); 
 		fgets(send_message,1023,stdin);
 		
-		if (strcmp(send_message,"quit") == 0) {
+		if (send_message[0] == 'q') {
 		
 			n = write(sock, send_message, strlen(send_message));
 			if (n < 0) 
