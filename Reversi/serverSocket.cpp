@@ -17,6 +17,7 @@
 		... both will get responses
 
 */
+#include "gameServer.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -96,48 +97,74 @@ int main(int argc, char *argv[]) {
 
 	 //testing sending mess
 	 //this will send to the client
+	 
+	 //creating serverEngine 
+	 //Start Game Engine
+	 serverEngine e;
+	 
+	 string board;
+	 board = e.showBoard();
+	 bzero(send_message,1024); //clear
+
+	 memcpy(send_message,board.c_str(),board.size());
+
+	 int count =0;
 	while (1) {
-	
+	 /*
+	 Comment out this code if wanting to send a message to client manually otherwise
+	 the board will be sent
+	 
 	 printf("Enter 'q' to terminate or send a message to this client: \n");
 	 
-	 bzero(send_message,1024); 
+	 bzero(send_message,1024);
 	 fgets(send_message,1023,stdin);
-	 
-	 //if the server sending quit message -> closing connection
-
-	 if (send_message[0] == 'q') {
-		send(newsock,"Server will close connection",26,0);
-		close(newsock);
-		break;
-	 } else {
-	 
-		//send(newsock, "This is a response from server: ", 50,0); //the sending message will be the return value from showBoard in gameengine
-		send(newsock, send_message,100,0);
-		//getting the message from client
-	 	bzero(receive_message,1024);
+	 */
+		
+		//beginning with sending the board to the client
+		//the board has been initialized before while loop for the first time 
+		//and before the end of while loop for the rest
+		
+		send(newsock, send_message,1024,0);
+		//starting receiving message
+	 	bzero(receive_message,1024);//clear
 
 	 	int n;
 	 	n = read(newsock,receive_message,1024);
-			
-		printf("The received request from client is: %s\n",receive_message);
-	 	if (n <0) {
-		fprintf(stderr,"Error while reading from socket");
 		
-		//check if the user want to quit
+		if (n <0) {
+			fprintf(stderr,"Error while reading from socket");
+		}
 		if (receive_message[0] == 'q' ) {
 			
 		  send(newsock, "thank you for playing", 22,0);
+		  printf("Client sends disconnection request!\n");
 		  close(newsock);
 		  break;
-		} else {
-			//send(newsock,"Hello Client!",13,0);
-			//the receive_message will contain 2 chars for the coordinator llike c3 d5
-			//calling the function to gameEngine right here
 		}
+		printf("The received request from client is: %s ",receive_message);
 		
-	 }
-	}	
-	}
+		//this if statement is for testing Human - Human
+		if (count % 2 ==0) {
+			if(e.makeMove('O',receive_message)) {
+				printf("Valid Move For O -> Generating Table with count = %d\n",count);
+						count+= 1;
+			}
+		}
+		else {
+			if(e.makeMove('@',receive_message)) {
+				printf("Valid Move for @ -> Generating Table with count = %d\n",count);
+						count+= 1;
+			}
+
+		}
+		board = e.showBoard();
+
+		bzero(send_message,1024);
+
+		memcpy(send_message,board.c_str(),board.size());
+
+	 }	
+	
 	 close(sock);
 	 return 0;
 	 

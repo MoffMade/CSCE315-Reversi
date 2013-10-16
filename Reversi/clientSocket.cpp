@@ -47,15 +47,10 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Missing Agrs client hostname port");
 		exit(1);
 	} else {
-		
 		//get the port number
 		port_num = atoi(argv[2]);
 	}
-	//creating a socket 
-	//1st para = domain
-	//2nd = type
-	//3rd = protocol
-
+	//creating a socket
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 
 	if (sock < 0) {
@@ -74,18 +69,14 @@ int main(int argc, char *argv[]) {
 	bzero((char *) &server_address, sizeof(server_address));
 
 	//setup the server address structure for binding call
-	
 	server_address.sin_family = AF_INET;	// server byte order
-
 	bcopy((char *)server->h_addr, (char *)&server_address.sin_addr.s_addr,server->h_length);
-
 	server_address.sin_port = htons(port_num); // converting port num into network byte order
-
 	if (connect(sock, (struct sockaddr *)&server_address, sizeof(server_address)) <0) {
-
 		fprintf(stderr,"Errow while writing to socket");
 		exit(1);
 	 }
+	 
 	int n;
 	while (1) {
 	
@@ -97,38 +88,31 @@ int main(int argc, char *argv[]) {
          fprintf(stderr,"ERROR reading from socket");
 
 	//When server game send quit message -> terminate by closing connection
-
-	if (receive_message[0] == 'q') {
-	close(sock);
-	break;
-	} else {
-
-		//start sending message to server
-		//if user choose to quit 
-		//send the message to let server know the user quit the game
-		//and close
-		//otherwise sending message like normal
+	//sometime the server sends an empty message
+	//this will ensure that no sending back from client if it receives invalid message from server
+	if (receive_message[0] != '\0') {
 		
-    		printf("This is a response from server: %s\n", receive_message ); 
-
-		printf("Enter move or 'q' to stop connection: \n");
-		bzero(send_message,1024); 
-		fgets(send_message,1023,stdin);
-		
-		if (send_message[0] == 'q') {
-		
+		if (receive_message[0] != 'q') {
+		    printf("This is a response from server: %s\n", receive_message ); 
+			printf("Enter move or 'q' to stop connection: \n");
+			bzero(send_message,1024); 
+			fgets(send_message,1023,stdin);
 			n = write(sock, send_message, strlen(send_message));
-			if (n < 0) 
-        		 fprintf(stderr,"ERROR writing to socket");
-    			close(sock);
-			break;
+			if (send_message[0] == 'q') {
+				printf("\n*******Server is about to close. Thank you for playing*******\n");
+				close(sock);
+				break;
+			}
 		} else {
-			n = write(sock, send_message, strlen(send_message));				
+			printf("\n*******Server is about to close. Thank you for playing*******\n");
+			close(sock);
+			break;
 		}
  
 	}
 	}
-    	return 0;
+    
+	return 0;
 
 
 

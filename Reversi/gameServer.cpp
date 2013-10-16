@@ -1,4 +1,7 @@
 #include "gameServer.h"
+#include <sstream>
+
+
 using namespace std;
 
 serverEngine::serverEngine(){
@@ -8,14 +11,19 @@ serverEngine::serverEngine(){
 		boardHistory[i];
     //will have other initialization
 }
-void serverEngine::showBoard(){
+string serverEngine::showBoard(){
+
     char** currBoard=gameBoard.getBoardState();
-    cout<<"  _ _ _ _ _ _ _ _"<<endl;
+	string result;
+    result = "\n  _ _ _ _ _ _ _ _\n";
     for(int i=0; i<8; i++){
-        cout<<i+1<<"|"<<currBoard[i][0]<<"|"<<currBoard[i][1]<<"|"<<currBoard[i][2]<<"|"<<currBoard[i][3]<<
-                "|"<<currBoard[i][4]<<"|"<<currBoard[i][5]<<"|"<<currBoard[i][6]<<"|"<<currBoard[i][7]<<"|"<<endl;
+		stringstream stream;
+		  stream<<i+1<<"|"<<currBoard[i][0]<<"|"<<currBoard[i][1]<<"|"<<currBoard[i][2]<<"|"<<currBoard[i][3]<<
+                "|"<<currBoard[i][4]<<"|"<<currBoard[i][5]<<"|"<<currBoard[i][6]<<"|"<<currBoard[i][7]<<"|";
+		result += stream.str() +  "\n";
     }
-    cout<<"  a b c d e f g h "<<endl;
+    result += "  a b c d e f g h ";
+	return result;
 }
 int serverEngine::makeMove(char p, string m){
     char c=tolower(m[0]);
@@ -51,6 +59,9 @@ void serverEngine::outputScores(){
         cout<<"It is a tie!"<<endl;
 }
 void serverEngine::runGame(){
+	/*
+	This code will be separated into serverSocket and clientSocket
+	
     string move;
     bool whiteTurn=true;
     showBoard();
@@ -98,4 +109,5 @@ void serverEngine::runGame(){
         showBoard();
     }
     outputScores();
+	*/
 }
