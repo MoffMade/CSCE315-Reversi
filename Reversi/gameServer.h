@@ -20,11 +20,14 @@ class serverEngine{
 	char** boardHistory[10];
 public:
     serverEngine();
+	string AImove();
     string showBoard();
+	void updateBoard(int turnCount);
+	void undo(int turnCount);
     int makeMove(char p, string m);
-    void printValidMoves(char p);
+    string printValidMoves(char p);
     bool isTerminalState();
-    void outputScores();
+    string outputScores();
     void runGame();
 };
 
