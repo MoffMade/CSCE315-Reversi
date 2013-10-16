@@ -83,20 +83,20 @@ int main(int argc, char *argv[]) {
 	//reading message from server
 
 	bzero(receive_message,1024);
-	n = read(sock, receive_message, 1023);
+	n = read(sock, receive_message, 1024);
 	if (n < 0) 
          fprintf(stderr,"ERROR reading from socket");
 
 	//When server game send quit message -> terminate by closing connection
 	//sometime the server sends an empty message
 	//this will ensure that no sending back from client if it receives invalid message from server
-	if (receive_message[0] != '\0') {
+	if (receive_message[0] != '\0' || receive_message[0] != '|') {
 		
 		if (receive_message[0] != 'q') {
 		    printf("This is a response from server: %s\n", receive_message ); 
 			printf("Enter move or 'q' to stop connection: \n");
 			bzero(send_message,1024); 
-			fgets(send_message,1023,stdin);
+			fgets(send_message,1024,stdin);
 			n = write(sock, send_message, strlen(send_message));
 			if (send_message[0] == 'q') {
 				printf("\n*******Server is about to close. Thank you for playing*******\n");

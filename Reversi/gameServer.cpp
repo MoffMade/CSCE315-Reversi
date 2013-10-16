@@ -23,6 +23,9 @@ string serverEngine::showBoard(){
 		result += stream.str() +  "\n";
     }
     result += "  a b c d e f g h ";
+	//add score below the table so the server will only send 1 message
+	string score = outputScores();
+	result += "\n" + score;
 	return result;
 }
 int serverEngine::makeMove(char p, string m){
@@ -33,11 +36,14 @@ int serverEngine::makeMove(char p, string m){
     coordPair loc = {row_choice,col_choice};
     return gameBoard.makeMove(p,loc);
 }
-void serverEngine::printValidMoves(char p){
+string serverEngine::printValidMoves(char p){
+	stringstream stream;
     vector<string> moves=gameBoard.getValidMoves(p);
-    for(int i=0; i<moves.size(); i++)
-        cout<<moves[i]<<", ";
-    cout<<endl;
+    for(int i=0; i<moves.size(); i++) {
+        stream<<moves[i]<<", ";
+	}
+    stream<<"\n";
+	return stream.str();
 }
 bool serverEngine::isTerminalState(){
     vector<string> whiteMoves=gameBoard.getValidMoves(WHITE);
@@ -47,18 +53,49 @@ bool serverEngine::isTerminalState(){
     else
         return false;
 };
-void serverEngine::outputScores(){
+string serverEngine::outputScores(){
     int whiteScore=gameBoard.getScore(WHITE);
     int blackScore=gameBoard.getScore(BLACK);
-    cout<<"White: "<<whiteScore<<endl<<"Black: "<<blackScore<<endl;
-    if(whiteScore>blackScore)
-        cout<<"White wins!"<<endl;
-    else if(whiteScore<blackScore)
-        cout<<"Black wins!"<<endl;
-    else
-        cout<<"It is a tie!"<<endl;
+	stringstream stream;
+    stream<<"White: "<<whiteScore<<"\nBlack: "<<blackScore<<"\n";
+    if (isTerminalState()) {
+		if(whiteScore>blackScore) {
+			stream<<"White wins!\n";
+		}
+		else if(whiteScore<blackScore) {
+			stream<<"Black wins!\n";
+		}
+		else
+			stream<<"It is a tie!\n";
+	}
+	return stream.str();
+}
+void serverEngine::undo(int turnCount) {
+
+	gameBoard.setBoardState(boardHistory[turnCount%10]);
+	
+}
+void serverEngine::updateBoard(int turnCount) {
+
+	boardHistory[turnCount%10]=gameBoard.getBoardState();
+	
+}
+string serverEngine::AImove() {
+	string move;
+	stringstream stream;
+	if(!((gameBoard.getValidMoves(BLACK)).empty())){
+		move=AI_Player.getAIMove(&gameBoard);
+		if(makeMove(BLACK, move)) {
+			stream<<"AI plays at "<<move<<"\n";	
+		}
+	}
+	else {
+			stream<<"AI has no valid moves.\n";
+	}
+	return stream.str();
 }
 void serverEngine::runGame(){
+	
 	/*
 	This code will be separated into serverSocket and clientSocket
 	

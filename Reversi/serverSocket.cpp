@@ -102,7 +102,8 @@ int main(int argc, char *argv[]) {
 	 //Start Game Engine
 	 serverEngine e;
 	 
-	 string board;
+	 string board ="";
+	 string AImove;
 	 board = e.showBoard();
 	 bzero(send_message,1024); //clear
 
@@ -124,16 +125,22 @@ int main(int argc, char *argv[]) {
 		//the board has been initialized before while loop for the first time 
 		//and before the end of while loop for the rest
 		
-		send(newsock, send_message,1024,0);
-		//starting receiving message
-	 	bzero(receive_message,1024);//clear
-
-	 	int n;
-	 	n = read(newsock,receive_message,1024);
 		
-		if (n <0) {
-			fprintf(stderr,"Error while reading from socket");
-		}
+	send(newsock, send_message,1024,0);
+	//starting receiving message
+	 bzero(receive_message,1024);//clear
+	//clear the board
+	board.clear();
+		
+	 int n;
+	 n = read(newsock,receive_message,1024);
+		
+	if (n <0) {
+		fprintf(stderr,"Error while reading from socket");
+	}
+		
+	if (receive_message[0] != '\0') {
+		
 		if (receive_message[0] == 'q' ) {
 			
 		  send(newsock, "thank you for playing", 22,0);
@@ -142,29 +149,58 @@ int main(int argc, char *argv[]) {
 		  break;
 		}
 		printf("The received request from client is: %s ",receive_message);
+		string help;
+		//Receive "help" command from the client
+		if ( receive_message[0] == 'h' && receive_message[1] == 'e' 
+				&& receive_message[2] == 'l' && receive_message[3] == 'p') {
+			printf("Receive the help request from client!");
+			help = "\nThe list of move that you can play: ";
+			help += e.printValidMoves('O');
+			board += help;
+			
+		} else if (receive_message[0] == 'u' && receive_message[1] == 'n'
+				&& receive_message[2] == 'd' && receive_message[3] == 'o'){
+				
+				//receive 'undo' command from the client
+				e.undo(count-1);
+				
+		} else {
+				
+		//this if statement is for testing Human - AI
+		//Assumption Human play first!
 		
-		//this if statement is for testing Human - Human
-		if (count % 2 ==0) {
-			if(e.makeMove('O',receive_message)) {
-				printf("Valid Move For O -> Generating Table with count = %d\n",count);
-						count+= 1;
-			}
-		}
-		else {
-			if(e.makeMove('@',receive_message)) {
-				printf("Valid Move for @ -> Generating Table with count = %d\n",count);
-						count+= 1;
-			}
+		if(!e.makeMove('O',receive_message)) {
+			//receiving an invalid move from user -> no AI move
+			//still return the board with no move!
+			
+			printf("Invalid Move For O -> Generating Table with count = %d\n",count);
+			board += "Invalid Move!\n"; 
+			
+		} else { 
+		
+			//AI make a move here
+			
+			count+= 1;
+			AImove = e.AImove();
+			printf("Move For AI -> Generating Table with count = %d\n",count);
+		
+			board += AImove;
+			e.updateBoard(count);
 
+			}
 		}
-		board = e.showBoard();
+		board += e.showBoard();
 
 		bzero(send_message,1024);
 
 		memcpy(send_message,board.c_str(),board.size());
-
-	 }	
 	
+		printf("Sending reply to client\n**********************************\n");
+
+		//save the state of the board for undo
+		
+	 }	
+	}
 	 close(sock);
 	 return 0;
 	 
