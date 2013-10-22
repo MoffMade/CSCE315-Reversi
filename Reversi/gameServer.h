@@ -20,8 +20,11 @@ class serverEngine{
 	char** boardHistory[10];
 public:
     serverEngine();
+	serverEngine(int difficulty,char Ai_color);
+	void changeColor(char Ai_color);
 	string AImove();
     string showBoard();
+	char getColor();
 	void updateBoard(int turnCount);
 	void undo(int turnCount);
     int makeMove(char p, string m);

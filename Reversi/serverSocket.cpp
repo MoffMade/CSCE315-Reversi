@@ -31,6 +31,8 @@
 int main(int argc, char *argv[]) {
 
 	int sock, newsock, port_num;
+	bool isAIvsAI = false;
+	bool isAIWhite = false;
 	char send_message[1024], receive_message[1024];
 	socklen_t clientlen;
 	struct sockaddr_in server_address, client_address;
@@ -68,8 +70,7 @@ int main(int argc, char *argv[]) {
 	server_address.sin_port = htons(port_num); // converting port num into network byte order
 
     	// This bind() call will bind  the socket to the current IP address on port, port_num
-     	if (bind(sock, (struct sockaddr *) &server_address, sizeof(server_address)) < 0)  {
-		
+     if (bind(sock, (struct sockaddr *) &server_address, sizeof(server_address)) < 0)  {
 		 fprintf(stderr, "Error while binding");
 		 exit(1);
 	 }
@@ -101,7 +102,8 @@ int main(int argc, char *argv[]) {
 	 //creating serverEngine 
 	 //Start Game Engine
 	 serverEngine e;
-	 
+
+
 	 string board ="";
 	 string AImove;
 	 board = e.showBoard();
@@ -111,24 +113,15 @@ int main(int argc, char *argv[]) {
 
 	 int count =0;
 	while (1) {
-	 /*
-	 Comment out this code if wanting to send a message to client manually otherwise
-	 the board will be sent
-	 
-	 printf("Enter 'q' to terminate or send a message to this client: \n");
-	 
-	 bzero(send_message,1024);
-	 fgets(send_message,1023,stdin);
-	 */
 		
-		//beginning with sending the board to the client
-		//the board has been initialized before while loop for the first time 
-		//and before the end of while loop for the rest
+	//beginning with sending the board to the client
+	//the board has been initialized before while loop for the first time 
+	//and before the end of while loop for the rest
 		
 		
 	send(newsock, send_message,1024,0);
-	//starting receiving message
-	 bzero(receive_message,1024);//clear
+	
+	bzero(receive_message,1024);//clear
 	//clear the board
 	board.clear();
 		
@@ -147,7 +140,12 @@ int main(int argc, char *argv[]) {
 		  printf("Client sends disconnection request!\n");
 		  close(newsock);
 		  break;
+		} else if (receive_message[0] == 'A' && receive_message[1] == 'I' ) {
+			isAIvsAI = true;
+			isAIWhite = true;
+			e.changeColor('O');
 		}
+		
 		printf("The received request from client is: %s ",receive_message);
 		string help;
 		//Receive "help" command from the client
@@ -163,27 +161,27 @@ int main(int argc, char *argv[]) {
 				
 				//receive 'undo' command from the client
 				e.undo(count-1);
-				
+				e.updateBoard(count-1);
 		} else {
-				
-		//this if statement is for testing Human - AI
-		//Assumption Human play first!
-		
-		if(!e.makeMove('O',receive_message)) {
+			
+		bool playerMove = true;
+		if(!isAIvsAI) {
+			if (isAIWhite && receive_message[0] != 'L')
+				playerMove = e.makeMove('@',receive_message);
+			else 
+				playerMove = e.makeMove('O',receive_message);
+		}
+		if (!playerMove) {
 			//receiving an invalid move from user -> no AI move
 			//still return the board with no move!
-			
 			printf("Invalid Move For O -> Generating Table with count = %d\n",count);
 			board += "Invalid Move!\n"; 
-			
 		} else { 
-		
-			//AI make a move here
-			
+			//AI move here
+			char d;
 			count+= 1;
 			AImove = e.AImove();
 			printf("Move For AI -> Generating Table with count = %d\n",count);
-		
 			board += AImove;
 			e.updateBoard(count);
 
@@ -197,8 +195,7 @@ int main(int argc, char *argv[]) {
 	
 		printf("Sending reply to client\n**********************************\n");
 
-		//save the state of the board for undo
-		
+		isAIvsAI = false;
 	 }	
 	}
 	 close(sock);

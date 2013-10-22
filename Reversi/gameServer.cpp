@@ -11,6 +11,13 @@ serverEngine::serverEngine(){
 		boardHistory[i];
     //will have other initialization
 }
+serverEngine::serverEngine(int difficulty,char Ai_color) {
+	gameBoard;
+	AI_Player = reversiAI(difficulty,Ai_color);
+	for(int i=0; i<10; i++)
+		boardHistory[i];
+
+}
 string serverEngine::showBoard(){
 
     char** currBoard=gameBoard.getBoardState();
@@ -80,12 +87,22 @@ void serverEngine::updateBoard(int turnCount) {
 	boardHistory[turnCount%10]=gameBoard.getBoardState();
 	
 }
+char serverEngine::getColor() {
+
+	return AI_Player.getColor();
+}
+void serverEngine::changeColor(char Ai_color) {
+	
+	AI_Player.changeColor(Ai_color);
+
+}
 string serverEngine::AImove() {
 	string move;
 	stringstream stream;
-	if(!((gameBoard.getValidMoves(BLACK)).empty())){
+	if(!((gameBoard.getValidMoves(AI_Player.getColor())).empty())){
 		move=AI_Player.getAIMove(&gameBoard);
-		if(makeMove(BLACK, move)) {
+		cout<<"AI MOVE "<<move<<endl;
+		if(makeMove(AI_Player.getColor(), move)) {
 			stream<<"AI plays at "<<move<<"\n";	
 		}
 	}
@@ -95,56 +112,5 @@ string serverEngine::AImove() {
 	return stream.str();
 }
 void serverEngine::runGame(){
-	
-	/*
-	This code will be separated into serverSocket and clientSocket
-	
-    string move;
-    bool whiteTurn=true;
-    showBoard();
-	int turnCount=0;
-    while(!isTerminalState()){
-        if(whiteTurn){
-			if(!((gameBoard.getValidMoves(WHITE)).empty())){
-				cout<<"Turn "<<turnCount<<"- Please enter move for WHITE player:: ";
-				cin>>move;
-				if(move=="help"){
-					cout<<"You can place a tile in spaces ";
-					printValidMoves(WHITE);
-					}
-				else if(move=="exit")
-					break;
-				else if(move=="undo"){
-					--turnCount;
-					gameBoard.setBoardState(boardHistory[turnCount%10]);
-					cout<<"Reset to turn "<<turnCount<<endl;
-					}
-				else if(makeMove(WHITE, move)){
-					whiteTurn=false;
-					turnCount++;
-					}
-				}
-			
-			else{
-				cout<<"WHITE has no valid moves."<<endl;
-				whiteTurn=false;
-			}
-		}
-        else{
-			if(!((gameBoard.getValidMoves(BLACK)).empty())){
-				move=AI_Player.getAIMove(&gameBoard);
-				cout<<"BLACK plays at "<<move<<endl;
-				if(makeMove(BLACK, move))
-					whiteTurn=true;
-			}
-			else{
-				cout<<"BLACK has no valid moves."<<endl;
-				whiteTurn=true;
-			}
-			}
-		boardHistory[turnCount%10]=gameBoard.getBoardState();
-        showBoard();
-    }
-    outputScores();
-	*/
+
 }

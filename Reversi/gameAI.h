@@ -14,8 +14,10 @@ class reversiAI{
     char AI_COLOR;
 public:
     reversiAI();
+	char getColor();
     reversiAI(int difficulty);
     reversiAI(int difficulty, char color);
+	void changeColor(char color);
     string getAIMove(Engine* board);
 };
 //Start off with random choice from valid moves
