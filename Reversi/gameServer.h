@@ -29,7 +29,6 @@ public:
 	void undo(int turnCount);
     int makeMove(char p, string m);
     string printValidMoves(char p);
-    bool isTerminalState();
     string outputScores();
     void runGame();
 };

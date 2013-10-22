@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <cctype>
+#include <sys/time.h>
 using namespace std;
 //Struct to define a coordinate pair in the board, one data piece for both row and column
 //Operators +, +=, - and -= defined to add or subtract the row and col members from two coordPairs
@@ -61,6 +62,11 @@ const coordPair NORTHWEST={1,-1};
 const coordPair SOUTHEAST={-1,1};
 const coordPair SOUTHWEST={1,1};
 const coordPair directions[8]={NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST};
+
+typedef struct moveWithScore{
+	int score; 
+	coordPair move;
+}moveWithScore;
 
 #endif	/* STDHF_H */
 

@@ -20,6 +20,7 @@
  *   0 1 2 3 4 5 6 7
  */
 #include "stdhf.h"
+#include <sstream>
 using namespace std;
 #ifndef GAMEMECHANICS_H
 #define	GAMEMECHANICS_H
@@ -34,7 +35,10 @@ public:
     int makeMove(char p, coordPair loc);
     bool isValidMove(char p, coordPair loc);
     vector<string> getValidMoves(char p);
+	vector<coordPair> getValidMovesLocForm(char p);
     int getScore(char p);
+	bool isTerminalState();
+	string showBoardState();
 };
 
 #endif	/* GAMEMECHANICS_H */

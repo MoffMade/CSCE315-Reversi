@@ -140,6 +140,23 @@ vector<string> Engine::getValidMoves(char p){
         }
     return validMoves;
 };
+
+vector<coordPair> Engine::getValidMovesLocForm(char p)
+{
+	vector<string> valid_moves = getValidMoves(p);
+	vector<coordPair> loc_moves;
+	for (int i = 0; i < valid_moves.size(); i++)
+	{
+		cout << "valid_moves: " << valid_moves[i][0] << valid_moves[i][1] << endl;
+		int r = (int)(valid_moves[i][1])-49;
+		int c = (int)(valid_moves[i][0])-97;
+		cout << "r: " << r << " c: " << c << endl;
+		coordPair location = {r,c};
+		loc_moves.push_back(location);
+	}
+	return loc_moves;
+};
+
 int Engine::getScore(char p){
     int score=0;
     for(int r=0; r<8; r++)
@@ -147,4 +164,32 @@ int Engine::getScore(char p){
             if(boardState[r][c]==p)
                 score++;
     return score;
+}
+
+bool Engine::isTerminalState()
+{
+    vector<string> whiteMoves=getValidMoves(WHITE);
+    vector<string> blackMoves=getValidMoves(BLACK);
+    if(whiteMoves.empty()&&blackMoves.empty())
+        return true;
+    else
+        return false;
+}
+
+string Engine::showBoardState(){
+
+    char** currBoard=this->getBoardState();
+	string result;
+    result = "\n  _ _ _ _ _ _ _ _\n";
+    for(int i=0; i<8; i++){
+		stringstream stream;
+		  stream<<i+1<<"|"<<currBoard[i][0]<<"|"<<currBoard[i][1]<<"|"<<currBoard[i][2]<<"|"<<currBoard[i][3]<<
+                "|"<<currBoard[i][4]<<"|"<<currBoard[i][5]<<"|"<<currBoard[i][6]<<"|"<<currBoard[i][7]<<"|";
+		result += stream.str() +  "\n";
+    }
+    result += "  a b c d e f g h ";
+	//add score below the table so the server will only send 1 message
+	//string score = outputScores();
+	//result += "\n" + score;
+	return result;
 }

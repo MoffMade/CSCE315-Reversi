@@ -52,20 +52,12 @@ string serverEngine::printValidMoves(char p){
     stream<<"\n";
 	return stream.str();
 }
-bool serverEngine::isTerminalState(){
-    vector<string> whiteMoves=gameBoard.getValidMoves(WHITE);
-    vector<string> blackMoves=gameBoard.getValidMoves(BLACK);
-    if(whiteMoves.empty()&&blackMoves.empty())
-        return true;
-    else
-        return false;
-};
 string serverEngine::outputScores(){
     int whiteScore=gameBoard.getScore(WHITE);
     int blackScore=gameBoard.getScore(BLACK);
 	stringstream stream;
     stream<<"White: "<<whiteScore<<"\nBlack: "<<blackScore<<"\n";
-    if (isTerminalState()) {
+    if (gameBoard.isTerminalState()) {
 		if(whiteScore>blackScore) {
 			stream<<"White wins!\n";
 		}
