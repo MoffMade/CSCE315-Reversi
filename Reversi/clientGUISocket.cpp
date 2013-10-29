@@ -54,11 +54,18 @@ void ClientGUISocket::CreateAnotherAI(string address,int _port_num2) {
 		fprintf(stderr,"Errow while writing to socket for server 2");
 		exit(1);
 	}
+	//let server 1 (not 2)know to behave like a client
+	m = write(sock_2,"HUMANvsAI",10);
+	bzero(receive_message_2,1024);
+	n = read(sock_2, receive_message_2, 1024);
+	
+	//note the message here is 'OK'
+	showBoard(receive_message_2);
 
 }
  
 void ClientGUISocket::showBoard(string message) {
-	cout<<receive_message<<endl;
+	cout<<message<<endl;
  }
  
  void ClientGUISocket::setPlayerLevel(string level) {
@@ -95,41 +102,42 @@ void ClientGUISocket::showBoard(string message) {
 	showBoard(receive_message);
 	return receive_message;
  }
- bool ClientGUISocket::seeAIMove() {
+ string ClientGUISocket::seeAIMove() {
+	
+	stringstream stream;
+	string result;
 	//receiving move from server 2 WHITE
-	bzero(receive_message_2,1024);
-	m = read(sock_2,receive_message_2,1024);
-	printf("This is a response from server 2: %s\n", receive_message_2 ); 
-	showBoard(receive_message_2);
-	
-	//sending move to server 1 BLACK
-	bzero(send_message,1024); 
-	send_message[0] = toupper(receive_message_2[12]);
-	send_message[1] = receive_message_2[13];
-	n = write(sock,send_message,1024);
-	
-	//receiving move from server 1 BLACK
 	bzero(receive_message,1024);
-	n = read(sock,receive_message,1024);
-	printf("This is a response from server 1: %s\n", receive_message ); 
-	showBoard(receive_message);
+	m = read(sock,receive_message,1024);
+	//printf("This is a response from server 1: %s\n", receive_message ); 
+	//showBoard(receive_message_2);
 	
+	stream<<"Server 1 play at:"<<receive_message[12]<<receive_message[13]<<"\n";
 	
-	//sending move to server 2 WHITE
-	bzero(send_message_2,1024);
+		
+	//sending move to server 1 BLACK
+	bzero(send_message_2,1024); 
 	send_message_2[0] = toupper(receive_message[12]);
 	send_message_2[1] = receive_message[13];
-	m = write(sock_2,send_message_2,1024);
+	n = write(sock_2,send_message_2,1024);
 	
+	//receiving move from server 1 BLACK
+	bzero(receive_message_2,1024);
+	n = read(sock_2,receive_message_2,1024);
+	//printf("This is a response from server 2: %s\n", receive_message_2 ); 
+
+	stream<<"Server 2 play at:"<<receive_message_2[12]<<receive_message_2[13]<<"\n";
+	stream<<"The board after 2 moves is: "<<receive_message_2;
+	//sending move to server 2 WHITE
 	bzero(send_message,1024);
-	cout<<"Enter to see AIs moves or 'q' to stop connection: \n";
-	if (cin.get() == 'q'){
-		printf("\n*******Server is about to close. Thank you for playing*******\n");
-		close(sock);
-		close(sock_2);
-		return false;
-	}
-	return true;
+	send_message[0] = toupper(receive_message_2[12]);
+	send_message[1] = receive_message_2[13];
+	m = write(sock,send_message,1024);
+	
+	bzero(send_message_2,1024);
+	showBoard(stream.str());
+	result = stream.str();
+	return result;
  }
  string ClientGUISocket::makePlayerMove(string move) {
   	bzero(send_message,1024);
@@ -145,4 +153,10 @@ void ClientGUISocket::showBoard(string message) {
 		showBoard(receive_message);
 		return receive_message;
 
+}
+void ClientGUISocket::sendingQuit() {
+	n = write(sock,"quit",4);
+	m = write(sock_2,"quit",4);
+	close(sock);
+	close(sock_2);
 }

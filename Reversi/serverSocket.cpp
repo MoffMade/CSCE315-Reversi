@@ -41,18 +41,12 @@ int main(int argc, char *argv[]) {
 	//check if command calls contain port number
 
 	if (argc <2) {
-	
 		fprintf(stderr, "Missing Port Number");
 		exit(1);
 	} else {
-		
 		//get the port number
 		port_num = atoi(argv[1]);
 	}
-	//creating a socket 
-	//1st para = domain
-	//2nd = type
-	//3rd = protocol
 
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -97,26 +91,24 @@ int main(int argc, char *argv[]) {
 	
 	 printf("server: got connection from %s port %d\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
 
-	 //testing sending mess
-	 //this will send to the client
-	 	 int n;
-
 	 //creating serverEngine 
 	 //Start Game Engine
 	serverEngine e;
 	
-	
-	char color = '@';
+	int n;
+	char color;
 	//the first message expected to receive from client is the mode whether Human-ai or ai-ai
 	bzero(receive_message,1024);//clear
-	 n = read(newsock,receive_message,1024);
+	n = read(newsock,receive_message,1024);
 	 
 	if (receive_message[0] == 'A' && receive_message[1] == 'I' ) {
 			isAIvsAI = true;
 			isAIWhite = true;
 			color = 'O';
-	} 
-	 
+	} else {
+		color = '@';
+	}
+	cout<<"Current mode is : "<<receive_message;
 	//sending OK message
 	bzero(send_message,1024);
 
@@ -124,49 +116,53 @@ int main(int argc, char *argv[]) {
 	send(newsock, send_message,1024,0);
 	 
 	 
-	//the first message expected to receive from client is the level difficulty
+	//the second message expected to receive from client is the level difficulty
 	bzero(receive_message,1024);//clear
 	 n = read(newsock,receive_message,1024);
 	
 	if (receive_message[0] == 'H' && receive_message[1] == 'A' && receive_message[2] == 'R' && receive_message[3] == 'D') {
-		printf("Current level is Hard!");
+		cout<<" Received for level :"<<receive_message;
 		e = serverEngine(2,color);
-	} else if (receive_message[0] == 'M' && receive_message[1] == 'E' && receive_message[1] == 'D' && receive_message[1] == 'I'
-					&& receive_message[1] == 'U' && receive_message[1] == 'M') {
-					printf("Current level is Medium!");
+	} else if (receive_message[0] == 'M' && receive_message[1] == 'E' && receive_message[2] == 'D' && receive_message[3] == 'I'
+					&& receive_message[4] == 'U' && receive_message[5] == 'M') {
+					cout<<" Received for level :"<<receive_message;
 					e = serverEngine(1,color);
-			} else if (receive_message[1] == 'E' && receive_message[1] == 'A' && receive_message[1] == 'S' && receive_message[1] == 'Y') {
-					printf("Current level is Easy!");
+			} else if (receive_message[0] == 'E' && receive_message[1] == 'A' && receive_message[2] == 'S' && receive_message[3] == 'Y') {
+					cout<<" Received for level :"<<receive_message;
 					e = serverEngine(0,color);
 				} else {
 					printf("Unrecognised input for difficulty! --> Set to default : EASY");
-					e = serverEngine(0,'@');
+					cout<<" Received for level :"<<receive_message;
+					e = serverEngine(0,color);
 				}
 	
 	string board ="";
 	string AImove;
 	board = e.showBoard();
 	 int count =0;
+	 
+	
 	while (1) {
 		
 	//beginning with sending the board to the client
 	//the board has been initialized before while loop for the first time 
 	//and before the end of while loop for the rest
-		
 	bzero(send_message,1024);
 
 	memcpy(send_message,board.c_str(),board.size());
+
 	send(newsock, send_message,1024,0);
-	
 	bzero(receive_message,1024);//clear
 	//clear the board
 	board.clear();
 		
-	 int n;
+	 // because both servers wait for move from client
+	 // this will make the server (behaving like client) 
+	 //	goes through without waiting for response
+	if (!isAIvsAI) {
 	 n = read(newsock,receive_message,1024);
-		
-	if (n <0) {
-		fprintf(stderr,"Error while reading from socket");
+	} else {
+		receive_message[0] = 'C';
 	}
 		
 	if (receive_message[0] != '\0') {
@@ -199,7 +195,12 @@ int main(int argc, char *argv[]) {
 			
 		bool playerMove = true;
 		if(!isAIvsAI) {
-			if (isAIWhite && receive_message[0] != 'L')
+			//this check if for whenever the first server response
+			//first server will not get any input data
+			//it will skip this to go to AImove
+			//after the first, both server should receive move from other
+			//than it can make normal move like human
+			if (isAIWhite)
 				playerMove = e.makeMove('@',receive_message);
 			else 
 				playerMove = e.makeMove('O',receive_message);

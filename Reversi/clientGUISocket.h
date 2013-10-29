@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <sstream>
 
 using namespace std;
 #ifndef CLIENTGUISOCKET_H
@@ -35,12 +36,13 @@ public:
 	ClientGUISocket(string address,int _port_num);
 	void CreateAnotherAI(string address,int _port_num2);
 	void setAILevel(string leve);
-	bool seeAIMove();
+	string seeAIMove();
 	void setPlayerLevel(string level);
 	
 	string setPlayerMode(string mode); //return 'OK' message
 	string makePlayerMove(string move); //return whole board + info
 	void showBoard(string message);
+	void sendingQuit();
 
 };
 #endif	
