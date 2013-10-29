@@ -11,7 +11,7 @@
 	This was only tested and compiled on CS tamu UNIX server
 	from now:
 	open 2 terminals
-		Server term: server 12345
+		Server term: reversiServer 12345 <difficulty>
 		Client term: client 127.0.0.1 12345
 		Client term: input message
 		... both will get responses
@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
 	int sock, newsock, port_num;
 	bool isAIvsAI = false;
 	bool isAIWhite = false;
+	bool levelNotSet = true;
 	char send_message[1024], receive_message[1024];
 	socklen_t clientlen;
 	struct sockaddr_in server_address, client_address;
@@ -98,19 +99,53 @@ int main(int argc, char *argv[]) {
 
 	 //testing sending mess
 	 //this will send to the client
-	 
+	 	 int n;
+
 	 //creating serverEngine 
 	 //Start Game Engine
-	 serverEngine e;
+	serverEngine e;
+	
+	
+	char color = '@';
+	//the first message expected to receive from client is the mode whether Human-ai or ai-ai
+	bzero(receive_message,1024);//clear
+	 n = read(newsock,receive_message,1024);
+	 
+	if (receive_message[0] == 'A' && receive_message[1] == 'I' ) {
+			isAIvsAI = true;
+			isAIWhite = true;
+			color = 'O';
+	} 
+	 
+	//sending OK message
+	bzero(send_message,1024);
 
-
-	 string board ="";
-	 string AImove;
-	 board = e.showBoard();
-	 bzero(send_message,1024); //clear
-
-	 memcpy(send_message,board.c_str(),board.size());
-
+	memcpy(send_message,"OK",2);
+	send(newsock, send_message,1024,0);
+	 
+	 
+	//the first message expected to receive from client is the level difficulty
+	bzero(receive_message,1024);//clear
+	 n = read(newsock,receive_message,1024);
+	
+	if (receive_message[0] == 'H' && receive_message[1] == 'A' && receive_message[2] == 'R' && receive_message[3] == 'D') {
+		printf("Current level is Hard!");
+		e = serverEngine(2,color);
+	} else if (receive_message[0] == 'M' && receive_message[1] == 'E' && receive_message[1] == 'D' && receive_message[1] == 'I'
+					&& receive_message[1] == 'U' && receive_message[1] == 'M') {
+					printf("Current level is Medium!");
+					e = serverEngine(1,color);
+			} else if (receive_message[1] == 'E' && receive_message[1] == 'A' && receive_message[1] == 'S' && receive_message[1] == 'Y') {
+					printf("Current level is Easy!");
+					e = serverEngine(0,color);
+				} else {
+					printf("Unrecognised input for difficulty! --> Set to default : EASY");
+					e = serverEngine(0,'@');
+				}
+	
+	string board ="";
+	string AImove;
+	board = e.showBoard();
 	 int count =0;
 	while (1) {
 		
@@ -118,7 +153,9 @@ int main(int argc, char *argv[]) {
 	//the board has been initialized before while loop for the first time 
 	//and before the end of while loop for the rest
 		
-		
+	bzero(send_message,1024);
+
+	memcpy(send_message,board.c_str(),board.size());
 	send(newsock, send_message,1024,0);
 	
 	bzero(receive_message,1024);//clear
@@ -140,10 +177,6 @@ int main(int argc, char *argv[]) {
 		  printf("Client sends disconnection request!\n");
 		  close(newsock);
 		  break;
-		} else if (receive_message[0] == 'A' && receive_message[1] == 'I' ) {
-			isAIvsAI = true;
-			isAIWhite = true;
-			e.changeColor('O');
 		}
 		
 		printf("The received request from client is: %s ",receive_message);
@@ -178,7 +211,6 @@ int main(int argc, char *argv[]) {
 			board += "Invalid Move!\n"; 
 		} else { 
 			//AI move here
-			char d;
 			count+= 1;
 			AImove = e.AImove();
 			printf("Move For AI -> Generating Table with count = %d\n",count);
