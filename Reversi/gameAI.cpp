@@ -7,6 +7,16 @@ reversiAI::reversiAI(){
     AI_COLOR=BLACK;
 	enemy_color = WHITE;
 }
+
+char reversiAI::getColor() {
+	return AI_COLOR;
+}
+
+void reversiAI::changeColor(char color) {
+	AI_COLOR =color;
+}
+
+
 reversiAI::reversiAI(int difficulty){
     AI_DIFFICULTY=difficulty;
     AI_COLOR=BLACK;

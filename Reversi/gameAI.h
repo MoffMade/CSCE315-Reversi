@@ -39,6 +39,8 @@ public:
 	void printMovesOfMWS();
 	void returnToPreviousBoardState(int depth);
 	void updateHistory(int depth);
+	char getColor();
+	void changeColor(char color);
 };
 //Start off with random choice from valid moves
 
