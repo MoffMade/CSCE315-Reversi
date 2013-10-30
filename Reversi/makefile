@@ -1,7 +1,7 @@
 all: reversiServer reversiClient
 
-reversiClient: gameClient.o clientSocket.o
-	g++ -o reversiClient gameClient.o clientSocket.o -lsocket -lnsl
+reversiClient: mainSocket.cpp gameClient.o clientGUISocket.o
+	g++ -o reversiClient mainSocket.cpp gameClient.o clientGUISocket.o -lsocket -lnsl
 
 reversiServer: gameServer.o serverSocket.o gameMechanics.o gameAI.o
 	g++ -o reversiServer gameServer.o serverSocket.o gameMechanics.o gameAI.o -lsocket -lnsl

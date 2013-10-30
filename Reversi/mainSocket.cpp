@@ -15,6 +15,18 @@
 
 using namespace std; 
 /*
+
+		The calling command from terminal
+		reversiServer <port_num_1>
+		reversiClient <port_num_1>
+		
+		if user pick AI-AI
+		
+		reversiServer <port_num_2> (from the third terminal)
+		program will ask user for only port_num_2
+		
+		Level for Difficulty: HARD, EASY, MEDIUM
+		
  
 		Instruction for AI-AI
 		After type AI-AI in the command
@@ -67,7 +79,7 @@ int main(int argc, char** argv) {
 	
 	if (mode.compare("AI-AI") ==0 ) {
 		int port;
-		cout<<"Port num: ";
+		cout<<"Input the port number for second AI: ";
 		cin>>port;
 		e.CreateAnotherAI("127.0.0.1",port);
 		cout<<"set level of difficulty for second AI: ";

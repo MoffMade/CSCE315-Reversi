@@ -30,12 +30,14 @@
 
 int main(int argc, char *argv[]) {
 
-	int sock, newsock, port_num;
+	int sock, newsock, port_num,m,n;
+	char color;
 	bool isAIvsAI = false;
 	bool isAIWhite = false;
 	bool levelNotSet = true;
 	char send_message[1024], receive_message[1024];
 	socklen_t clientlen;
+	serverEngine e;
 	struct sockaddr_in server_address, client_address;
 
 	//check if command calls contain port number
@@ -49,7 +51,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	sock = socket(AF_INET, SOCK_STREAM, 0);
-
 	if (sock < 0) {
 		fprintf(stderr, "Error whille openning socket");
 		exit(1);
@@ -59,7 +60,6 @@ int main(int argc, char *argv[]) {
 	bzero((char *) &server_address, sizeof(server_address));
 
 	//setup the server address structure for binding call
-	
 	server_address.sin_family = AF_INET;	// server byte order
 	server_address.sin_addr.s_addr = INADDR_ANY; //filled with current host's IP usually 127.0.0.1
 	server_address.sin_port = htons(port_num); // converting port num into network byte order
@@ -85,18 +85,10 @@ int main(int argc, char *argv[]) {
 	 // in order to reuse the original socket file for accepting new connections
 	 // using another socket file newsock to communicate with connected client
 	 newsock = accept(sock, (struct sockaddr *) &client_address, &clientlen);
-
 	 if (newsock < 0)
 		fprintf(stderr,"Error while accepting");
-	
 	 printf("server: got connection from %s port %d\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
-
-	 //creating serverEngine 
-	 //Start Game Engine
-	serverEngine e;
-	
-	int n;
-	char color;
+	 
 	//the first message expected to receive from client is the mode whether Human-ai or ai-ai
 	bzero(receive_message,1024);//clear
 	n = read(newsock,receive_message,1024);
@@ -139,26 +131,22 @@ int main(int argc, char *argv[]) {
 	string board ="";
 	string AImove;
 	board = e.showBoard();
-	 int count =0;
 	 
-	
+	 
+	int count =0;
 	while (1) {
-		
-	//beginning with sending the board to the client
-	//the board has been initialized before while loop for the first time 
-	//and before the end of while loop for the rest
+	
 	bzero(send_message,1024);
 
 	memcpy(send_message,board.c_str(),board.size());
 
 	send(newsock, send_message,1024,0);
-	bzero(receive_message,1024);//clear
-	//clear the board
+	bzero(receive_message,1024);
 	board.clear();
 		
-	 // because both servers wait for move from client
-	 // this will make the server (behaving like client) 
-	 //	goes through without waiting for response
+	// because both servers wait for 'move' from client
+	// this will make the server (behaving like client) 
+	//	goes through without waiting for response
 	if (!isAIvsAI) {
 	 n = read(newsock,receive_message,1024);
 	} else {
